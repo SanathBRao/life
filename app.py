@@ -47,7 +47,7 @@ if "blockchain" not in st.session_state:
 # UI
 # -----------------------
 st.set_page_config(page_title="Blockchain Waste Credit System", page_icon="♻️", layout="centered")
-st.title("♻️ Blockchain-based Waste Credit System — Fast Demo Mode")
+st.title("♻️ Blockchain-based Waste Credit System ")
 
 menu = st.sidebar.radio("Menu", ["Citizen Wallet", "Verify Segregation", "Redeem Credits", "Leaderboard", "Blockchain Ledger"])
 
