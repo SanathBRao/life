@@ -100,4 +100,56 @@ else:
             for tx in reversed(wallet["transactions"]):
                 st.write("✅", tx)
         else:
-            st.info("No transactions
+            st.info("No transactions yet.")
+
+    elif menu == "Redeem Credits":
+        st.header("🎟️ Redeem Waste Credits")
+        household = st.selectbox("Select Household", list(st.session_state.wallets.keys()))
+        wallet = st.session_state.wallets[household]
+        st.metric("Available Credits", wallet["credits"])
+
+        rewards = {
+            "Utility Bill Discount (10 credits)": 10,
+            "Metro/Bus Ticket (5 credits)": 5,
+            "Local Shop Coupon (8 credits)": 8,
+        }
+        reward = st.selectbox("Choose Reward", list(rewards.keys()))
+        if st.button("Redeem"):
+            cost = rewards[reward]
+            if wallet["credits"] >= cost:
+                wallet["credits"] -= cost
+                add_block(household, f"Redeemed {reward}", -cost)
+                st.success(f"🎉 Redeemed: {reward}")
+            else:
+                st.error("⚠️ Not enough credits.")
+
+    # -----------------------
+    # Worker Menu Options
+    # -----------------------
+    elif menu == "Verify Segregation":
+        st.header("🗑️ Waste Segregation Verification")
+        household = st.selectbox("Select Household", list(st.session_state.wallets.keys()))
+        segregated = st.radio("Was waste properly segregated?", ["Yes", "No"])
+
+        if st.button("Verify & Allocate Credits"):
+            if segregated == "Yes":
+                points = random.randint(2, 5)
+                st.session_state.wallets[household]["credits"] += points
+                add_block(household, "Segregation Verified", points)
+                st.success(f"✅ {points} credits added to {household}")
+            else:
+                st.warning("❌ No credits allocated.")
+
+    elif menu == "Leaderboard":
+        st.header("🏆 Leaderboard")
+        leaderboard = sorted(st.session_state.wallets.items(), key=lambda x: x[1]["credits"], reverse=True)
+        for rank, (house, data) in enumerate(leaderboard, 1):
+            st.write(f"{rank}. {house} — {data['credits']} credits")
+
+    elif menu == "Blockchain Ledger":
+        st.header("🔗 Blockchain Ledger (last 10 blocks)")
+        if not st.session_state.blockchain:
+            st.info("No blocks yet.")
+        else:
+            for block in reversed(st.session_state.blockchain[-10:]):
+                st.json(block, expanded=False)
