@@ -50,7 +50,7 @@ if "user_role" not in st.session_state:
 # App Layout
 # -----------------------
 st.set_page_config(page_title="Blockchain Waste Credit System", page_icon="♻️", layout="centered")
-st.title("♻️ Blockchain Waste Credit System — Hackathon Demo")
+st.title("♻️ Blockchain Waste Credit System ")
 
 # -----------------------
 # Login System
