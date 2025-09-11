@@ -47,13 +47,15 @@ if "user_role" not in st.session_state:
     st.session_state.user_role = None
 
 # -----------------------
-# Authentication
+# App Layout
 # -----------------------
 st.set_page_config(page_title="Blockchain Waste Credit System", page_icon="♻️", layout="centered")
-st.title("♻️ Blockchain Waste Credit System — Demo")
+st.title("♻️ Blockchain Waste Credit System — Hackathon Demo")
 
-# Simple login system
-roles = {"user": "user123", "worker": "worker123"}  # demo passwords
+# -----------------------
+# Login System
+# -----------------------
+roles = {"user": "user123", "worker": "worker123"}  # demo users
 
 if not st.session_state.user_role:
     st.subheader("🔑 Login")
@@ -70,79 +72,32 @@ if not st.session_state.user_role:
             st.error("❌ Invalid credentials")
 
 else:
+    # Logout button
     st.sidebar.success(f"Logged in as: {st.session_state.user_role.upper()}")
     if st.sidebar.button("Logout"):
         st.session_state.user_role = None
         st.experimental_rerun()
 
     # -----------------------
-    # Normal User Dashboard
+    # Role-based Menu
     # -----------------------
     if st.session_state.user_role == "user":
-        st.header("🏠 Citizen Dashboard")
+        menu = st.sidebar.radio("Menu", ["Citizen Wallet", "Redeem Credits", "Leaderboard"])
+    elif st.session_state.user_role == "worker":
+        menu = st.sidebar.radio("Menu", ["Verify Segregation", "Leaderboard", "Blockchain Ledger"])
 
-        household = st.selectbox("Select Your Household", list(st.session_state.wallets.keys()))
+    # -----------------------
+    # Citizen Menu Options
+    # -----------------------
+    if menu == "Citizen Wallet":
+        st.header("🏠 Citizen Digital Wallet")
+        household = st.selectbox("Select Household", list(st.session_state.wallets.keys()))
         wallet = st.session_state.wallets[household]
 
         st.metric("Wallet Balance (Waste Credits)", wallet["credits"])
-
         st.subheader("Transaction History")
         if wallet["transactions"]:
             for tx in reversed(wallet["transactions"]):
                 st.write("✅", tx)
         else:
-            st.info("No transactions yet.")
-
-        st.subheader("🎟️ Redeem Credits")
-        rewards = {
-            "Utility Bill Discount (10 credits)": 10,
-            "Metro/Bus Ticket (5 credits)": 5,
-            "Local Shop Coupon (8 credits)": 8,
-        }
-        reward = st.selectbox("Choose Reward", list(rewards.keys()))
-        if st.button("Redeem"):
-            cost = rewards[reward]
-            if wallet["credits"] >= cost:
-                wallet["credits"] -= cost
-                add_block(household, f"Redeemed {reward}", -cost)
-                st.success(f"🎉 Redeemed: {reward}")
-            else:
-                st.error("⚠️ Not enough credits.")
-
-    # -----------------------
-    # Worker Dashboard
-    # -----------------------
-    elif st.session_state.user_role == "worker":
-        st.header("🛠️ Worker Dashboard")
-
-        menu = st.sidebar.radio("Menu", ["Verify Segregation", "Leaderboard", "Blockchain Ledger"])
-
-        # Verify segregation
-        if menu == "Verify Segregation":
-            household = st.selectbox("Select Household", list(st.session_state.wallets.keys()))
-            segregated = st.radio("Was waste properly segregated?", ["Yes", "No"])
-
-            if st.button("Verify & Allocate Credits"):
-                if segregated == "Yes":
-                    points = random.randint(2, 5)
-                    st.session_state.wallets[household]["credits"] += points
-                    add_block(household, "Segregation Verified", points)
-                    st.success(f"✅ {points} credits added to {household}")
-                else:
-                    st.warning("❌ No credits allocated.")
-
-        # Leaderboard
-        elif menu == "Leaderboard":
-            st.header("🏆 Leaderboard")
-            leaderboard = sorted(st.session_state.wallets.items(), key=lambda x: x[1]["credits"], reverse=True)
-            for rank, (house, data) in enumerate(leaderboard, 1):
-                st.write(f"{rank}. {house} — {data['credits']} credits")
-
-        # Blockchain Ledger
-        elif menu == "Blockchain Ledger":
-            st.header("🔗 Blockchain Ledger (last 10 blocks)")
-            if not st.session_state.blockchain:
-                st.info("No blocks yet.")
-            else:
-                for block in reversed(st.session_state.blockchain[-10:]):
-                    st.json(block, expanded=False)
+            st.info("No transactions
