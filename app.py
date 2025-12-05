@@ -405,7 +405,7 @@ def main():
         else:
             st.write("Not logged in")
 
-    st.title("Student Database Management System (Streamlit-only)")
+    st.title("KAPE student management tool")
 
     if not st.session_state.logged_in:
         # show login and small info
